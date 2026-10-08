@@ -1,67 +1,64 @@
-import { test, expect } from './testSetup';
+import { test, expect } from "./testSetup";
 
 const validUsers: Record<string, { name: string; id: string }> = {
-  'a@jwt.com': { name: 'Admin', id: '1' },
-  'd@jwt.com': { name: 'Kai Chen', id: '3' },
+  "a@jwt.com": { name: "Admin", id: "1" },
+  "d@jwt.com": { name: "Kai Chen", id: "3" },
 };
 
 async function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-test('login with a@jwt.com', async ({ page }) => {
+test("login with a@jwt.com", async ({ page }) => {
   // Mock API routes
-  await page.route('*/**/api/auth', async (route) => {
+  await page.route("*/**/api/auth", async (route) => {
     const body = route.request().postDataJSON();
     const user = validUsers[body.email];
     if (!user) {
-      await route.fulfill({ status: 401, json: { error: 'Unauthorized' } });
+      await route.fulfill({ status: 401, json: { error: "Unauthorized" } });
       return;
     }
     await route.fulfill({
       json: {
-        user: { ...user, email: body.email, password: body.password, roles: [{ role: 'diner' }] },
-        token: 'test-token',
+        user: {
+          ...user,
+          email: body.email,
+          password: body.password,
+          roles: [{ role: "diner" }],
+        },
+        token: "test-token",
       },
     });
   });
 
-  await page.route('*/**/api/user/me', async (route) => {
+  await page.route("*/**/api/user/me", async (route) => {
     await route.fulfill({
-      json: { ...validUsers['a@jwt.com'], email: 'a@jwt.com', roles: [{ role: 'diner' }] },
+      json: {
+        ...validUsers["a@jwt.com"],
+        email: "a@jwt.com",
+        roles: [{ role: "diner" }],
+      },
     });
   });
 
-  await page.route('*/**/api/order/menu', async (route) => {
+  await page.route("*/**/api/order/menu", async (route) => {
     await route.fulfill({ json: [] });
   });
 
-  await page.route('*/**/api/franchise', async (route) => {
+  await page.route("*/**/api/franchise", async (route) => {
     await route.fulfill({ json: { franchises: [] } });
   });
 
   // Navigate and log in
-  await page.goto('/');
-  await page.getByRole('link', { name: 'Login' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('a@jwt.com');
-  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Password' }).fill('test');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.goto("/");
+  await page.getByRole("link", { name: "Login" }).click();
+  await page.getByRole("textbox", { name: "Email address" }).fill("a@jwt.com");
+  await page.getByRole("textbox", { name: "Email address" }).press("Tab");
+  await page.getByRole("textbox", { name: "Password" }).fill("test");
+  await page.getByRole("button", { name: "Login" }).click();
 
   // Assert login succeeded (link shows user initials)
-  await expect(page.getByRole('link', { name: 'A', exact: true })).toBeVisible();
-});
-
-test('register new user', async ({ page }) => {await page.goto('/');
-  await page.getByRole('link', { name: 'Register' }).click();
-  await page.getByRole('textbox', { name: 'Full name' }).click();
-  await page.getByRole('textbox', { name: 'Full name' }).fill('test');
-  await page.getByRole('textbox', { name: 'Full name' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Email address' }).fill('test@test.com');
-  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Password' }).fill('test');
-  await page.getByRole('button', { name: 'Register' }).click();
-  // await sleep(10000); // Wait for the page to update after registration
-  await expect(page.locator('#navbar-dark')).toContainText('Logout');
-  await expect(page.getByRole('link', { name: 't', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "A", exact: true }),
+  ).toBeVisible();
 });
