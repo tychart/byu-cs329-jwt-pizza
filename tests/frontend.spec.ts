@@ -5,6 +5,10 @@ const validUsers: Record<string, { name: string; id: string }> = {
   'd@jwt.com': { name: 'Kai Chen', id: '3' },
 };
 
+async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 test('login with a@jwt.com', async ({ page }) => {
   // Mock API routes
   await page.route('*/**/api/auth', async (route) => {
@@ -46,4 +50,18 @@ test('login with a@jwt.com', async ({ page }) => {
 
   // Assert login succeeded (link shows user initials)
   await expect(page.getByRole('link', { name: 'A', exact: true })).toBeVisible();
+});
+
+test('register new user', async ({ page }) => {await page.goto('/');
+  await page.getByRole('link', { name: 'Register' }).click();
+  await page.getByRole('textbox', { name: 'Full name' }).click();
+  await page.getByRole('textbox', { name: 'Full name' }).fill('test');
+  await page.getByRole('textbox', { name: 'Full name' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('test@test.com');
+  await page.getByRole('textbox', { name: 'Email address' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Password' }).fill('test');
+  await page.getByRole('button', { name: 'Register' }).click();
+  // await sleep(10000); // Wait for the page to update after registration
+  await expect(page.locator('#navbar-dark')).toContainText('Logout');
+  await expect(page.getByRole('link', { name: 't', exact: true })).toBeVisible();
 });
