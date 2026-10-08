@@ -72,11 +72,22 @@ bunx playwright test --ui          # interactive UI mode / recording
 bunx playwright show-report        # open the last HTML report
 ```
 
-- Tests live in `tests/`; the suite is `tests/pizza.spec.ts`.
+- Tests live in `tests/`, split into small per-feature files (`auth`, `menu`, `payment`, `delivery`, `diner`, `franchise`, `admin`, `docs`, `static`) that share the API mocks and helpers in `tests/mocks.ts`.
 - `tests/testSetup.ts` fails a test if it makes a real call to `http://localhost:3000`.
+- Playwright reuses an existing dev server on `:5173`. After changing dependencies, restart `bun run dev` so the tests don't hit a stale module graph.
 - Coverage thresholds live in `.nycrc.json` (80% lines).
 - Playwright starts the Vite dev server automatically via `bun run dev`.
 - Recording (`--ui`) needs a graphical desktop session, so run it from a terminal on the machine itself, not over plain SSH.
+
+## Frontend conventions
+
+Short rules that reflect the current toolchain: TypeScript 7, React 19, Vite 8 (Rolldown), and React Router 8.
+
+- **No `import React` for JSX.** `tsconfig.json` uses the automatic runtime (`"jsx": "react-jsx"`), so a file only imports what it actually uses.
+- **Import hooks, events, and types by name.** e.g. `import { useState, type FormEvent } from 'react'` or `import type { ReactNode } from 'react'`. Don't reach for the `React.*` namespace.
+- **Routing comes from `react-router`.** `react-router-dom` was removed in React Router 8; import `BrowserRouter`, `Routes`, `Route`, `Link`, `NavLink`, and every hook from `react-router`.
+- **Use inline `type` imports** so it stays obvious what exists at runtime.
+- **Compiler settings are intentional.** `moduleResolution: "bundler"` is required by TS 7 (the old `"node"` value was removed) and is correct for Vite, and `target: "ES2025"` is the newest level Vite 8 accepts. `tsc` is not part of the build — run `bunx tsc --noEmit` to type-check.
 
 ## Development notes
 
@@ -103,10 +114,10 @@ Modify `package.json`
 
 ### React
 
-React works out of the box with Vite, but we do need to install the desired React packages. The `index.html` file loads `index.jsx` which then loads the app component (`src/app.jsx`).
+React works out of the box with Vite. Install React and the router (React Router 8 is imported from `react-router`; the old `react-router-dom` package was removed in v8). The `index.html` file loads `index.tsx` which then loads the app component (`src/app/app.tsx`).
 
 ```sh
-bun add react react-dom react-router-dom
+bun add react react-dom react-router
 ```
 
 ### Tailwind
@@ -185,7 +196,7 @@ import 'preline/preline';
 Initialize components whenever the page location changes.
 
 ```js
-import { useLocation, Routes, Route, NavLink } from 'react-router-dom';
+import { useLocation, Routes, Route, NavLink } from 'react-router';
 
 export default function App() {
   const location = useLocation();
