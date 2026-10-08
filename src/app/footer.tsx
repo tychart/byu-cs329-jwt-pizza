@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router';
 
 interface Props {
@@ -6,9 +6,9 @@ interface Props {
 }
 
 export default function Footer(props: Props) {
-  const [version, setVersion] = React.useState('');
+  const [version, setVersion] = useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch('/version.json')
       .then((response) => response.json())
       .then((data) => setVersion(data.version));

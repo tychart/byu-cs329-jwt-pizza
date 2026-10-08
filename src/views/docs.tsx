@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import View from './view';
 import { pizzaService } from '../service/service';
 import { useParams } from 'react-router';
@@ -11,8 +11,8 @@ const apis = [
 
 const Docs = () => {
   const { docType } = useParams();
-  const [docs, setDocs] = React.useState<Endpoints>({ endpoints: [] });
-  React.useEffect(() => {
+  const [docs, setDocs] = useState<Endpoints>({ endpoints: [] });
+  useEffect(() => {
     (async () => {
       setDocs(await pizzaService.docs(docType!));
     })();

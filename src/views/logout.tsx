@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { pizzaService } from '../service/service';
 import View from './view';
@@ -11,7 +11,7 @@ interface Props {
 export default function Logout(props: Props) {
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     pizzaService.logout();
     props.setUser(null);
     navigate('/');

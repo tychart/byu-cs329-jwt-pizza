@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import View from './view';
 import { pizzaService } from '../service/service';
@@ -19,9 +19,9 @@ async function updateUser() {
 
 export default function DinerDashboard(props: Props) {
   const user = props.user || ({} as User);
-  const [orders, setOrders] = React.useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       if (user) {
         const r: OrderHistory = await pizzaService.getOrders(user);

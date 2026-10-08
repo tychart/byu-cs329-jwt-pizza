@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import Button from '../components/button';
 import View from './view';
@@ -12,7 +12,7 @@ export default function Delivery() {
   const location = useLocation();
   const order: Order = location.state?.order || { pizzas: [] };
   const jwt: string = location.state?.jwt || 'error';
-  const [jwtPayload, setJwtPayload] = React.useState<JWTPayload>({ message: 'invalid', payload: "{ error: 'invalid JWT' }" });
+  const [jwtPayload, setJwtPayload] = useState<JWTPayload>({ message: 'invalid', payload: "{ error: 'invalid JWT' }" });
 
   async function verify() {
     try {

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import View from './view';
 import Button from '../components/button';
@@ -6,12 +6,12 @@ import { pizzaService } from '../service/service';
 import { Order, OrderItem } from '../service/pizzaService';
 
 export default function Payment() {
-  const [errMessage, setErrorMessage] = React.useState('');
+  const [errMessage, setErrorMessage] = useState('');
   const location = useLocation();
   const order: Order = location.state?.order || { items: [] };
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const user = await pizzaService.getUser();
       if (!user) {

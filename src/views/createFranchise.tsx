@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, type FormEvent } from 'react';
 import { useBreadcrumb } from '../hooks/appNavigation';
 import { EmailIcon, StoreIcon } from '../icons';
 import { pizzaService } from '../service/service';
@@ -9,9 +9,9 @@ import { Franchise } from '../service/pizzaService';
 
 export default function CreateFranchise() {
   const navigateToParentPath = useBreadcrumb();
-  const [franchise, setFranchise] = React.useState<Franchise>({ stores: [], id: '', name: '' });
+  const [franchise, setFranchise] = useState<Franchise>({ stores: [], id: '', name: '' });
 
-  async function createFranchise(event: React.FormEvent) {
+  async function createFranchise(event: FormEvent) {
     event.preventDefault();
     await pizzaService.createFranchise(franchise);
     navigateToParentPath();

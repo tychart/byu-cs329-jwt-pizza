@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { NavLink } from 'react-router';
 import View from './view';
@@ -13,9 +13,9 @@ interface Props {
 
 export default function FranchiseDashboard(props: Props) {
   const navigate = useNavigate();
-  const [franchise, setFranchise] = React.useState<Franchise | null>(null);
+  const [franchise, setFranchise] = useState<Franchise | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       if (props.user) {
         const franchises = await pizzaService.getFranchise(props.user);

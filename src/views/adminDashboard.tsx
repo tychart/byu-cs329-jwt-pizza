@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import View from './view';
 import { useNavigate } from 'react-router';
 import NotFound from './notFound';
@@ -13,11 +13,11 @@ interface Props {
 
 export default function AdminDashboard(props: Props) {
   const navigate = useNavigate();
-  const [franchiseList, setFranchiseList] = React.useState<FranchiseList>({ franchises: [], more: false });
-  const [franchisePage, setFranchisePage] = React.useState(0);
-  const filterFranchiseRef = React.useRef<HTMLInputElement>(null);
+  const [franchiseList, setFranchiseList] = useState<FranchiseList>({ franchises: [], more: false });
+  const [franchisePage, setFranchisePage] = useState(0);
+  const filterFranchiseRef = useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       setFranchiseList(await pizzaService.getFranchises(franchisePage, 3, '*'));
     })();

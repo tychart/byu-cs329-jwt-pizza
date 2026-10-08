@@ -1,7 +1,7 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 
 interface Props {
-  slides: React.ReactNode[];
+  slides: ReactNode[];
 }
 
 export default function Carousel(props: Props) {

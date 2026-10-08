@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { KeyIcon, CloseEyeIcon, PersonIcon, EmailIcon } from '../icons';
 import Button from '../components/button';
 import { pizzaService } from '../service/service';
@@ -11,20 +11,20 @@ interface Props {
 }
 
 export default function Register(props: Props) {
-  const [name, setName] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [message, setMessage] = React.useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
   const navigateToParentPath = useBreadcrumb();
   const navigateToLogin = useBreadcrumb('login');
-  const nameRef = React.useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     nameRef.current?.focus();
   }, []);
 
-  async function register(event: React.FormEvent) {
+  async function register(event: FormEvent) {
     event.preventDefault();
     try {
       props.setUser(await pizzaService.register(name, email, password));

@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, Routes, Route } from 'react-router';
 import Header from './header';
 import Footer from './footer';
@@ -33,7 +32,7 @@ declare global {
 }
 
 export default function App() {
-  const [user, setUser] = React.useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const location = useLocation();
 
   useEffect(() => {

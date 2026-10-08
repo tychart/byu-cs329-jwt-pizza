@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, type FormEvent } from 'react';
 import { useLocation } from 'react-router';
 import { useBreadcrumb } from '../hooks/appNavigation';
 import { StoreIcon } from '../icons';
@@ -11,9 +11,9 @@ import { Store } from '../service/pizzaService';
 export default function CreateStore() {
   const state = useLocation().state;
   const navigateToParentPath = useBreadcrumb();
-  const [store, setStore] = React.useState<Store>({ id: '', name: '' });
+  const [store, setStore] = useState<Store>({ id: '', name: '' });
 
-  async function createStore(event: React.FormEvent) {
+  async function createStore(event: FormEvent) {
     event.preventDefault();
     await pizzaService.createStore(state.franchise, store);
     navigateToParentPath();

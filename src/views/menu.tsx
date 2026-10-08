@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { pizzaService } from '../service/service';
 import View from './view';
 import Card from '../components/card';
@@ -28,7 +28,7 @@ export default function Menu() {
     setOrder({ items: [...order.items, { menuId: pizza.id, description: pizza.title, price: pizza.price }] });
   }
 
-  function checkout(event: React.FormEvent) {
+  function checkout(event: FormEvent) {
     event.preventDefault();
     if (selectedStore && order.items.length > 0) {
       order.storeId = selectedStore;
