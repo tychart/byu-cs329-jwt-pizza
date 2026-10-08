@@ -22,36 +22,51 @@ async function basicInit(page: Page) {
 
   // Mock login endpoint
   await page.route("*/**/api/auth", async (route) => {
-    const loginReq = route.request().postDataJSON();
-    const user = validUsers[loginReq.email];
-    if (!user || user.password !== loginReq.password) {
-      await route.fulfill({ status: 401, json: { error: "Unauthorized" } });
-      return;
-    }
-    loggedInUser = validUsers[loginReq.email];
-    const loginRes = {
-      user: loggedInUser,
-      token: "abcdef",
-    };
-    expect(route.request().method()).toBe("PUT");
-    await route.fulfill({ json: loginRes });
-  });
+    const method = route.request().method();
+    const body = route.request().postDataJSON();
 
-  // Mock register endpoint
-  await page.route("*/**/api/auth", async (route) => {
-    const registerReq = route.request().postDataJSON();
-    const user = validUsers[registerReq.email];
-    if (!user || user.password !== registerReq.password) {
-      await route.fulfill({ status: 401, json: { error: "Unauthorized" } });
+    // Mock login endpoint
+    if (method === "PUT") {
+      const user = validUsers[body.email];
+      if (!user || user.password !== body.password) {
+        await route.fulfill({ status: 401, json: { error: "Unauthorized" } });
+        return;
+      }
+      loggedInUser = validUsers[body.email];
+      const loginRes = {
+        user: loggedInUser,
+        token: "abcdef",
+      };
+      expect(route.request().method()).toBe("PUT");
+      await route.fulfill({ json: loginRes });
+
       return;
     }
-    loggedInUser = validUsers[registerReq.email];
-    const loginRes = {
-      user: loggedInUser,
-      token: "abcdef",
-    };
-    expect(route.request().method()).toBe("PUT");
-    await route.fulfill({ json: loginRes });
+
+    // Mock register endpoint
+    if (method === "POST") {
+      const user: User = {
+        id: "99",
+        name: body.name,
+        email: body.email,
+        password: body.password,
+        roles: [{ role: Role.Diner }],
+      };
+
+      validUsers[body.email] = user; // so a later PUT login can find them
+
+      await route.fulfill({
+        json: {
+          user,
+          token: "abcdef",
+        },
+      });
+
+      return;
+    }
+
+    // Anything else on this URL is unexpected — fail loudly, don't silently pass.
+    throw new Error(`Unexpected ${method} on /api/auth`);
   });
 
   await page.route("*/**/api/user/me", async (route) => {
@@ -114,6 +129,7 @@ async function basicInit(page: Page) {
 }
 
 test("register new user", async ({ page }) => {
+  await basicInit(page);
   await page.goto("/");
   await page.getByRole("link", { name: "Register" }).click();
   await page.getByRole("textbox", { name: "Full name" }).click();
@@ -125,7 +141,7 @@ test("register new user", async ({ page }) => {
   await page.getByRole("textbox", { name: "Email address" }).press("Tab");
   await page.getByRole("textbox", { name: "Password" }).fill("test");
   await page.getByRole("button", { name: "Register" }).click();
-  await sleep(10000); // Wait for the page to update after registration
+  //   await sleep(10000); // Wait for the page to update after registration
   await expect(page.locator("#navbar-dark")).toContainText("Logout");
   await expect(
     page.getByRole("link", { name: "t", exact: true }),
