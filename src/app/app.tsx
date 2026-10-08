@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { useLocation, Routes, Route } from 'react-router-dom';
+import { useLocation, Routes, Route } from 'react-router';
 import Header from './header';
 import Footer from './footer';
 import Home from '../views/home';

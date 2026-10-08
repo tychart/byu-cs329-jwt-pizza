@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { HamburgerIcon, CloseIcon } from '../icons';
 import { User } from '../service/pizzaService';
 

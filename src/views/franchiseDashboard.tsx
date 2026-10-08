@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { NavLink } from 'react-router-dom';
+import { useNavigate } from 'react-router';
+import { NavLink } from 'react-router';
 import View from './view';
 import { TrashIcon, CautionIcon } from '../icons';
 import Button from '../components/button';

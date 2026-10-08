@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { pizzaService } from '../service/service';
 import View from './view';
 import { User } from '../service/pizzaService';

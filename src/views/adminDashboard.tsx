@@ -1,6 +1,6 @@
 import React from 'react';
 import View from './view';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import NotFound from './notFound';
 import Button from '../components/button';
 import { pizzaService } from '../service/service';

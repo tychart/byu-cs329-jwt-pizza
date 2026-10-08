@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useBreadcrumb } from '../hooks/appNavigation';
 import { pizzaService } from '../service/service';
 import View from './view';

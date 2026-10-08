@@ -3,7 +3,7 @@ import { pizzaService } from '../service/service';
 import View from './view';
 import Card from '../components/card';
 import Button from '../components/button';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { Franchise, Menu, Pizza, Store } from '../service/pizzaService';
 
 export default function Menu() {

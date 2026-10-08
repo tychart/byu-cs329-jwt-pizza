@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import View from './view';
 import { pizzaService } from '../service/service';
 import { Order, OrderHistory, Role, User } from '../service/pizzaService';

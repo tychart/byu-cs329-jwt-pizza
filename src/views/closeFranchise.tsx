@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { pizzaService } from '../service/service';
 import View from './view';
 import Button from '../components/button';

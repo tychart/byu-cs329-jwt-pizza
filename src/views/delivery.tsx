@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import Button from '../components/button';
 import View from './view';
 import { pizzaService } from '../service/service';

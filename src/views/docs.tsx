@@ -1,7 +1,7 @@
 import React from 'react';
 import View from './view';
 import { pizzaService } from '../service/service';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { Endpoints } from '../service/pizzaService';
 
 const apis = [
