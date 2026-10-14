@@ -1,5 +1,5 @@
 import { HSOverlay } from "preline";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import Button from "../components/button";
 import { CloseIcon } from "../icons";
@@ -14,6 +14,7 @@ import View from "./view";
 
 interface Props {
 	user: User | null;
+	setUser: (user: User) => void;
 }
 
 function openUserModal() {
@@ -30,13 +31,25 @@ function closeUserModal() {
 	}
 }
 
-async function updateUser() {
-	setTimeout(closeUserModal, 100);
-}
-
 export default function DinerDashboard(props: Props) {
 	const user = props.user || ({} as User);
 	const [orders, setOrders] = useState<Order[]>([]);
+	const nameRef = useRef<HTMLInputElement>(null);
+	const emailRef = useRef<HTMLInputElement>(null);
+	const passwordRef = useRef<HTMLInputElement>(null);
+
+	async function updateUser() {
+		const updatedUser: User = {
+			id: user.id,
+			name: nameRef.current?.value,
+			email: emailRef.current?.value,
+			password: passwordRef.current?.value || undefined,
+			roles: user.roles,
+		};
+
+		props.setUser(updatedUser);
+		setTimeout(closeUserModal, 100);
+	}
 
 	useEffect(() => {
 		(async () => {
@@ -175,7 +188,28 @@ export default function DinerDashboard(props: Props) {
 						</div>
 						<div className="p-4 overflow-y-scroll max-h-52">
 							<div className="my-4 text-lg text-start grid grid-cols-5 gap-2 items-center">
-								update fields here
+								<div className="font-semibold">name:</div>
+								<input
+									type="text"
+									className="col-span-4 border border-gray-300 rounded-md p-1"
+									defaultValue={user.name}
+									ref={nameRef}
+								/>
+								<div className="font-semibold">email:</div>
+								<input
+									type="email"
+									className="col-span-4 border border-gray-300 rounded-md p-1"
+									defaultValue={user.email}
+									ref={emailRef}
+								/>
+								<div className="font-semibold">password:</div>
+								<input
+									id="password"
+									type="text"
+									className="col-span-4 border border-gray-300 rounded-md p-1"
+									defaultValue=""
+									ref={passwordRef}
+								/>
 							</div>
 						</div>
 						<div className="flex justify-end items-center gap-x-2 py-3 px-4 border-t  bg-slate-200 rounded-b-xl">
