@@ -19,42 +19,42 @@ class HttpPizzaService implements PizzaService {
 	async callEndpoint(
 		path: string,
 		method: string = "GET",
-		body?: any,
+		body?: unknown,
+		// biome-ignore lint/suspicious/noExplicitAny: raw JSON response, typed by each caller
 	): Promise<any> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const options: any = {
-					method: method,
-					headers: {
-						"Content-Type": "application/json",
-					},
-					credentials: "include",
-				};
+		const headers: Record<string, string> = {
+			"Content-Type": "application/json",
+		};
 
-				const authToken = localStorage.getItem("token");
-				if (authToken) {
-					options.headers["Authorization"] = `Bearer ${authToken}`;
-				}
+		const authToken = localStorage.getItem("token");
+		if (authToken) {
+			headers.Authorization = `Bearer ${authToken}`;
+		}
 
-				if (body) {
-					options.body = JSON.stringify(body);
-				}
+		const options: RequestInit = {
+			method,
+			headers,
+			credentials: "include",
+		};
 
-				if (!path.startsWith("http")) {
-					path = pizzaServiceUrl + path;
-				}
+		if (body) {
+			options.body = JSON.stringify(body);
+		}
 
-				const r = await fetch(path, options);
-				const j = await r.json();
-				if (r.ok) {
-					resolve(j);
-				} else {
-					reject({ code: r.status, message: j.message });
-				}
-			} catch (e: any) {
-				reject({ code: 500, message: e.message });
+		if (!path.startsWith("http")) {
+			path = pizzaServiceUrl + path;
+		}
+
+		try {
+			const r = await fetch(path, options);
+			const j = await r.json();
+			if (r.ok) {
+				return j;
 			}
-		});
+			return Promise.reject({ code: r.status, message: j.message });
+		} catch (e) {
+			return Promise.reject({ code: 500, message: (e as Error).message });
+		}
 	}
 
 	async login(email: string, password: string): Promise<User> {
@@ -106,7 +106,7 @@ class HttpPizzaService implements PizzaService {
 	}
 
 	async verifyOrder(jwt: string): Promise<JWTPayload> {
-		return this.callEndpoint(pizzaFactoryUrl + "/api/order/verify", "POST", {
+		return this.callEndpoint(`${pizzaFactoryUrl}/api/order/verify`, "POST", {
 			jwt,
 		});
 	}
@@ -150,7 +150,7 @@ class HttpPizzaService implements PizzaService {
 
 	async docs(docType: string): Promise<Endpoints> {
 		if (docType === "factory") {
-			return this.callEndpoint(pizzaFactoryUrl + `/api/docs`);
+			return this.callEndpoint(`${pizzaFactoryUrl}/api/docs`);
 		}
 		return this.callEndpoint(`/api/docs`);
 	}
