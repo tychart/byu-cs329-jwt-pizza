@@ -235,6 +235,15 @@ export async function installApiMocks(
     await route.fulfill({ json: state.loggedInUser });
   });
 
+  await page.route(/\/api\/user\/(?!me$)[^/]+$/, async (route) => {
+    expect(route.request().method()).toBe("PUT");
+    const body = route.request().postDataJSON();
+    state.loggedInUser = { ...state.loggedInUser, ...body };
+    await route.fulfill({
+      json: { user: state.loggedInUser, token: "test-token" },
+    });
+  });
+
   await page.route(/\/api\/order\/menu$/, async (route) => {
     expect(route.request().method()).toBe("GET");
     await route.fulfill({ json: options.menu ?? menu });

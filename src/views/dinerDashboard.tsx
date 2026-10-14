@@ -34,6 +34,7 @@ function closeUserModal() {
 export default function DinerDashboard(props: Props) {
 	const user = props.user || ({} as User);
 	const [orders, setOrders] = useState<Order[]>([]);
+	const [errMessage, setErrorMessage] = useState("");
 	const nameRef = useRef<HTMLInputElement>(null);
 	const emailRef = useRef<HTMLInputElement>(null);
 	const passwordRef = useRef<HTMLInputElement>(null);
@@ -47,10 +48,22 @@ export default function DinerDashboard(props: Props) {
 			roles: user.roles,
 		};
 
-		await pizzaService.updateUser(updatedUser);
+		try {
+			await pizzaService.updateUser(updatedUser);
+		} catch (err) {
+			setErrorMessage(
+				(err as { message?: string }).message || "Unable to update user",
+			);
+			return;
+		}
 
 		props.setUser(updatedUser);
 		setTimeout(closeUserModal, 100);
+	}
+
+	function openEditUser() {
+		setErrorMessage("");
+		openUserModal();
 	}
 
 	useEffect(() => {
@@ -79,7 +92,7 @@ export default function DinerDashboard(props: Props) {
 						src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
 						alt="Smiling employee"
 					/>
-					<Button title="Edit" className="w-16 p-0" onPress={openUserModal} />
+					<Button title="Edit" className="w-16 p-0" onPress={openEditUser} />
 				</div>
 
 				<div className="my-4 text-lg text-orange-200 text-start grid grid-cols-5 gap-2">
@@ -189,6 +202,14 @@ export default function DinerDashboard(props: Props) {
 							</button>
 						</div>
 						<div className="p-4 overflow-y-scroll max-h-52">
+							{errMessage && (
+								<div
+									role="alert"
+									className="text-orange-700 bg-yellow-100 p-2 rounded-md"
+								>
+									⚠️ {errMessage}
+								</div>
+							)}
 							<div className="my-4 text-lg text-start grid grid-cols-5 gap-2 items-center">
 								<div className="font-semibold">name:</div>
 								<input
