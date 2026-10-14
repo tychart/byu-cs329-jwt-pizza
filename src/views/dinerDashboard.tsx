@@ -47,6 +47,8 @@ export default function DinerDashboard(props: Props) {
 			roles: user.roles,
 		};
 
+		await pizzaService.updateUser(updatedUser);
+
 		props.setUser(updatedUser);
 		setTimeout(closeUserModal, 100);
 	}
