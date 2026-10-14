@@ -1,6 +1,6 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": {
     // Removes imports you are no longer using whenever you save a file.
