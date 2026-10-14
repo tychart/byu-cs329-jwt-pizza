@@ -16,10 +16,22 @@ interface Props {
 	user: User | null;
 }
 
+function openUserModal() {
+	const modal = document.getElementById("hs-jwt-modal");
+	if (modal) {
+		HSOverlay.open(modal);
+	}
+}
+
+function closeUserModal() {
+	const modal = document.getElementById("hs-jwt-modal");
+	if (modal) {
+		HSOverlay.close(modal);
+	}
+}
+
 async function updateUser() {
-	setTimeout(() => {
-		HSOverlay.close(document.getElementById("hs-jwt-modal")!);
-	}, 100);
+	setTimeout(closeUserModal, 100);
 }
 
 export default function DinerDashboard(props: Props) {
@@ -50,15 +62,9 @@ export default function DinerDashboard(props: Props) {
 					<img
 						className="hs-tooltip-toggle relative inline-block size-[96px] rounded-full ring-2 ring-white hover:z-10"
 						src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
-						alt="Employee stock photo"
+						alt="Smiling employee"
 					/>
-					<Button
-						title="Edit"
-						className="w-16 p-0"
-						onPress={() =>
-							HSOverlay.open(document.getElementById("hs-jwt-modal")!)
-						}
-					/>
+					<Button title="Edit" className="w-16 p-0" onPress={openUserModal} />
 				</div>
 
 				<div className="my-4 text-lg text-orange-200 text-start grid grid-cols-5 gap-2">
@@ -68,12 +74,11 @@ export default function DinerDashboard(props: Props) {
 					<div className="col-span-4">{user.email}</div>
 					<div className="font-semibold text-orange-400">role:</div>{" "}
 					<div className="col-span-4">
-						{user.roles &&
-							user.roles.map((role, index) => (
-								<span key={index}>
-									{index === 0 ? "" : ", "} {formatRole(role)}
-								</span>
-							))}
+						{user.roles?.map((role, index) => (
+							<span key={`${role.role}-${role.objectId ?? ""}`}>
+								{index === 0 ? "" : ", "} {formatRole(role)}
+							</span>
+						))}
 					</div>
 				</div>
 
@@ -123,8 +128,8 @@ export default function DinerDashboard(props: Props) {
 													</tr>
 												</thead>
 												<tbody className="divide-y divide-gray-200">
-													{orders.map((order, index) => (
-														<tr key={index} className="hover:bg-gray-100">
+													{orders.map((order) => (
+														<tr key={order.id} className="hover:bg-gray-100">
 															<td className="px-6 py-4 whitespace-nowrap text-start text-xs sm:text-sm font-medium text-gray-800">
 																{order.id}
 															</td>
