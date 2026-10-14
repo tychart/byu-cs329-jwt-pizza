@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect } from "./testSetup";
 import { Role } from "../src/service/pizzaService";
 import type {
@@ -140,6 +140,8 @@ export interface ApiOptions {
   franchises?: Franchise[];
   /** Result of `GET /api/franchise/:id` (the current franchisee's franchises). */
   franchise?: Franchise[];
+  /** Users returned by `GET /api/user` (defaults to `users`). */
+  users?: User[];
   orders?: Order[];
   /** Make `POST /api/order` fail (used for the payment error path). */
   orderError?: boolean;
@@ -155,6 +157,12 @@ export interface ApiState {
   createdStores: { id: string; name: string }[];
   closedFranchises: string[];
   closedStores: string[];
+  /** Mutable user directory backing auth, list, update, and delete. */
+  users: User[];
+  /** Query strings seen by `GET /api/user`. */
+  userQueries: string[];
+  /** Ids passed to `DELETE /api/user/:id`. */
+  deletedUsers: string[];
 }
 
 /** Register handlers for every frontend endpoint. Call before `page.goto`. */
@@ -169,7 +177,23 @@ export async function installApiMocks(
     createdStores: [],
     closedFranchises: [],
     closedStores: [],
+    users: [],
+    userQueries: [],
+    deletedUsers: [],
   };
+
+  // Clone the seed users so mutations (register, update, delete) never leak
+  // into the module-level fixtures shared by every test in a worker.
+  state.users = (options.users ?? users).map((u) => ({
+    ...u,
+    roles: u.roles?.map((r) => ({ ...r })),
+  }));
+  if (options.user) {
+    state.loggedInUser =
+      state.users.find((u) => u.id === options.user?.id) ?? {
+        ...options.user,
+      };
+  }
 
   const franchiseData = options.franchises ?? [alphaFranchise, betaFranchise];
   const orderHistory = options.orders ?? [];
@@ -189,7 +213,7 @@ export async function installApiMocks(
     const body = route.request().postDataJSON();
 
     if (method === "PUT") {
-      const user = users.find(
+      const user = state.users.find(
         (u) => u.email === body.email && u.password === body.password,
       );
       if (!user) {
@@ -205,13 +229,21 @@ export async function installApiMocks(
     }
 
     if (method === "POST") {
+      if (state.users.some((u) => u.email === body.email)) {
+        await route.fulfill({
+          status: 409,
+          json: { message: "email already taken" },
+        });
+        return;
+      }
       const user: User = {
-        id: "99",
+        id: String(100 + state.users.length),
         name: body.name,
         email: body.email,
         password: body.password,
         roles: [{ role: Role.Diner }],
       };
+      state.users.push(user);
       state.loggedInUser = user;
       await route.fulfill({ json: { user, token: "test-token" } });
       return;
@@ -236,11 +268,61 @@ export async function installApiMocks(
   });
 
   await page.route(/\/api\/user\/(?!me$)[^/]+$/, async (route) => {
-    expect(route.request().method()).toBe("PUT");
-    const body = route.request().postDataJSON();
-    state.loggedInUser = { ...state.loggedInUser, ...body };
+    const method = route.request().method();
+    const id = route.request().url().split("/api/user/")[1].split(/[?/]/)[0];
+
+    if (method === "PUT") {
+      const body = route.request().postDataJSON();
+      const conflict = state.users.find(
+        (u) => u.id !== id && u.email === body.email,
+      );
+      if (conflict) {
+        await route.fulfill({
+          status: 409,
+          json: { message: "email already taken" },
+        });
+        return;
+      }
+      const target = state.users.find((u) => u.id === id);
+      if (target) {
+        Object.assign(target, body);
+      }
+      state.loggedInUser = { ...(target ?? state.loggedInUser), ...body };
+      await route.fulfill({
+        json: { user: state.loggedInUser, token: "test-token" },
+      });
+      return;
+    }
+
+    if (method === "DELETE") {
+      state.users = state.users.filter((u) => u.id !== id);
+      state.deletedUsers.push(id);
+      await route.fulfill({ json: {} });
+      return;
+    }
+
+    throw new Error(`Unexpected ${method} on /api/user/${id}`);
+  });
+
+  await page.route(/\/api\/user\?[^/]*$/, async (route) => {
+    expect(route.request().method()).toBe("GET");
+    const url = new URL(route.request().url());
+    const pageNumber = Number(url.searchParams.get("page") ?? "1");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
+    const name = (url.searchParams.get("name") ?? "*")
+      .replaceAll("*", "")
+      .toLowerCase();
+    state.userQueries.push(url.search);
+
+    const matches = state.users.filter((u) =>
+      (u.name ?? "").toLowerCase().includes(name),
+    );
+    const offset = (pageNumber - 1) * limit;
+    const pageUsers = matches
+      .slice(offset, offset + limit)
+      .map(({ id, name, email, roles }) => ({ id, name, email, roles }));
     await route.fulfill({
-      json: { user: state.loggedInUser, token: "test-token" },
+      json: { users: pageUsers, more: offset + limit < matches.length },
     });
   });
 
