@@ -52,11 +52,19 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           printf '{"version": "%s" }' "$version" > public/version.json
 
+      # vite writes the bundle (plus public/version.json) to dist/. Without
+      # this step the deploy job has nothing to download.
+      - name: Build
+        run: bun run build
+
       - name: Update dist artifact
         uses: actions/upload-artifact@v7.0.2
         with:
           name: package
           path: dist/
+          # Fail loudly if the build ever stops producing dist/ instead of
+          # warning and letting the deploy job die with "Artifact not found".
+          if-no-files-found: error
 
   deploy:
     needs: build
