@@ -1,4 +1,4 @@
-# A modern typescript workflow
+A modern typescript workflow
 
 For my curiosity report, I wanted to try making my JWT pizza project use the bleeding edge of tools, such as Bun, Vitest, and Biome. 
 
@@ -9,5 +9,39 @@ I went into this project thinking that Bun was a full replacement for Node, but 
 As far as the Biome tool goes, that actually went really smoothly. This allowed me to replace the usage of ESLint and Prettier for the application, and the lintier and formatter are incredibly fast. I was able to get the VS Code extension, so it integrated really nicely with my existing development environment and workflow. One issue I did have was where it relied on the local binary for the project, so I would have a red error message on my screen when I wasn't coding in JavaScript or Typescript. To solve this, I ended up having to disable the extension user wide, then specifically enable it in certain workspaces, but it ended up being a pretty solid solution.
 
 For the usage of Biome, I found out pretty quickly that while formatters like Ruff allow the user to choose exactly what syntax and formatting they want to enforce, Biome has extremely opinionated defaults, and expects you to just use those defaults. I actually found this pretty nice because then I didn't need to worry about any settings and whether or not they made sense in my environment, I just used the defaults and they turned out to be pretty decent.
+
+Reproduction:
+
+To install Bun:
+```
+curl -fsSL https://bun.com/install | bash
+```
+
+To install Vitest:
+```
+bun add -D vitest
+```
+
+To install Biome:
+```
+bun add -D -E @biomejs/biome
+```
+
+
+I then modified the scripts in the `package.json` file to use the new programs, and that is it. It did take some trial and error to get the scripts right, but once I got it set up, it's been working flawlessly for months now.
+
+```json
+"scripts": {
+	"start": "cd src && bun index.js",
+	"test": "vitest run",
+	"test:watch": "vitest",
+	"test:coverage": "vitest run --coverage",
+	"lint": "biome check .",
+	"lint:fix": "biome check --write .",
+	"format": "biome format --write .",
+	"format:check": "biome format ."
+}
+```
+
 
 Overall, I had a good experience trying out these modern JavaScript/Typescript tools, although they did make following along with the in-class tutorials a bit difficult.
