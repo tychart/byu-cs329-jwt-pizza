@@ -1,0 +1,13 @@
+# A modern typescript workflow
+
+For my curiosity report, I wanted to try making my JWT pizza project use the bleeding edge of tools, such as Bun, Vitest, and Biome. 
+
+The most troublesome of these tools to use was Bun, but that was because I was hoping to be able to have it be a full replacement for NPM and node, and while it can replace NPM fully (had some difficulty there, but it's possible), node is unfortunately still necessary to be able to run Vitest and Playwright, both of which still are not ready to move to a bun engine, but can be installed and ran via bun as the package manager. 
+
+I went into this project thinking that Bun was a full replacement for Node, but through research along with trial and error, I discovered that while Bun is a full replacement for NPM and is capable of doing a lot of things that node can do, it does not have all of the features of Node. For Vitest and Playwright, I discovered that both have deep and tightly coupled integration with one another, and it is simply not possible to just drop in Bun as a replacement and expect it to work. I found out that even if I forced it, Bun would try to run the processes, but ultimately it would crash due to lack of specific matching APIs. Overall though, besides instances where programs had NPM hard-coded in their scripts, my experience of replacing NPM with Bun has been enlightening and also interesting, if not seamless.
+
+As far as the Biome tool goes, that actually went really smoothly. This allowed me to replace the usage of ESLint and Prettier for the application, and the lintier and formatter are incredibly fast. I was able to get the VS Code extension, so it integrated really nicely with my existing development environment and workflow. One issue I did have was where it relied on the local binary for the project, so I would have a red error message on my screen when I wasn't coding in JavaScript or Typescript. To solve this, I ended up having to disable the extension user wide, then specifically enable it in certain workspaces, but it ended up being a pretty solid solution.
+
+For the usage of Biome, I found out pretty quickly that while formatters like Ruff allow the user to choose exactly what syntax and formatting they want to enforce, Biome has extremely opinionated defaults, and expects you to just use those defaults. I actually found this pretty nice because then I didn't need to worry about any settings and whether or not they made sense in my environment, I just used the defaults and they turned out to be pretty decent.
+
+Overall, I had a good experience trying out these modern JavaScript/Typescript tools, although they did make following along with the in-class tutorials a bit difficult.
